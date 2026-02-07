@@ -1,6 +1,13 @@
 "use client"
 
-import Spline from "@splinetool/react-spline/next"
+import dynamic from "next/dynamic"
+
+const Spline = dynamic(() => import("@splinetool/react-spline"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 bg-background" />
+  ),
+})
 
 export function SplineBackground() {
   return (

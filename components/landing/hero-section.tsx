@@ -2,7 +2,14 @@
 
 import { motion } from "framer-motion"
 import { Sparkles, ArrowDown } from "lucide-react"
-import Spline from "@splinetool/react-spline/next"
+import dynamic from "next/dynamic"
+
+const Spline = dynamic(() => import("@splinetool/react-spline"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 bg-background" />
+  ),
+})
 
 interface HeroSectionProps {
   onLaunch: () => void
@@ -14,7 +21,7 @@ export function HeroSection({ onLaunch }: HeroSectionProps) {
       {/* Spline 3D Background */}
       <div className="absolute inset-0 z-0" aria-hidden="true">
         <Spline scene="https://prod.spline.design/EuFyVyxz7M-BFadA/scene.splinecode" />
-        {/* Subtle overlay for readability - lighter than before to let the 3D shine */}
+        {/* Subtle overlay for readability */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
