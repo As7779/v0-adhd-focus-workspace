@@ -1,24 +1,17 @@
 "use client"
 
-import { Suspense } from "react"
-import Spline from "@splinetool/react-spline/next"
+import dynamic from "next/dynamic"
 
-function SplineScene() {
-  return (
-    <Spline scene="https://prod.spline.design/EuFyVyxz7M-BFadA/scene.splinecode" />
-  )
-}
+const Spline = dynamic(() => import("@splinetool/react-spline"), {
+  ssr: false,
+  loading: () => <div className="absolute inset-0 bg-background" />,
+})
 
 export function SplineBackground() {
   return (
     <div className="fixed inset-0 z-0" aria-hidden="true">
-      {/* Base background color while Spline loads */}
       <div className="absolute inset-0 bg-background" />
-      {/* Spline 3D scene */}
-      <Suspense fallback={null}>
-        <SplineScene />
-      </Suspense>
-      {/* Overlay for text readability */}
+      <Spline scene="https://prod.spline.design/EuFyVyxz7M-BFadA/scene.splinecode" />
       <div
         className="absolute inset-0 pointer-events-none"
         style={{

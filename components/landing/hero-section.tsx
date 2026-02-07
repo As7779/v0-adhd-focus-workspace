@@ -1,15 +1,13 @@
 "use client"
 
-import { Suspense } from "react"
+import dynamic from "next/dynamic"
 import { motion } from "framer-motion"
 import { Sparkles, ArrowDown } from "lucide-react"
-import Spline from "@splinetool/react-spline/next"
 
-function HeroSplineScene() {
-  return (
-    <Spline scene="https://prod.spline.design/EuFyVyxz7M-BFadA/scene.splinecode" />
-  )
-}
+const Spline = dynamic(() => import("@splinetool/react-spline"), {
+  ssr: false,
+  loading: () => <div className="absolute inset-0 bg-background" />,
+})
 
 interface HeroSectionProps {
   onLaunch: () => void
@@ -21,10 +19,7 @@ export function HeroSection({ onLaunch }: HeroSectionProps) {
       {/* Spline 3D Background */}
       <div className="absolute inset-0 z-0" aria-hidden="true">
         <div className="absolute inset-0 bg-background" />
-        <Suspense fallback={null}>
-          <HeroSplineScene />
-        </Suspense>
-        {/* Overlay for readability */}
+        <Spline scene="https://prod.spline.design/EuFyVyxz7M-BFadA/scene.splinecode" />
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
