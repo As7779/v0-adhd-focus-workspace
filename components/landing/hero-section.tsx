@@ -1,7 +1,15 @@
 "use client"
 
+import { Suspense } from "react"
 import { motion } from "framer-motion"
 import { Sparkles, ArrowDown } from "lucide-react"
+import Spline from "@splinetool/react-spline/next"
+
+function HeroSplineScene() {
+  return (
+    <Spline scene="https://prod.spline.design/EuFyVyxz7M-BFadA/scene.splinecode" />
+  )
+}
 
 interface HeroSectionProps {
   onLaunch: () => void
@@ -10,37 +18,18 @@ interface HeroSectionProps {
 export function HeroSection({ onLaunch }: HeroSectionProps) {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Animated Background */}
+      {/* Spline 3D Background */}
       <div className="absolute inset-0 z-0" aria-hidden="true">
         <div className="absolute inset-0 bg-background" />
-        <div
-          className="absolute inset-0 opacity-40"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 60% at 50% 30%, hsl(234 89% 74% / 0.2), transparent 70%)",
-          }}
-        />
-        <div
-          className="absolute inset-0 opacity-20"
-          style={{
-            background:
-              "radial-gradient(ellipse 50% 40% at 70% 70%, hsl(160 60% 45% / 0.15), transparent 60%)",
-          }}
-        />
-        {/* Subtle grid */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-          }}
-        />
+        <Suspense fallback={null}>
+          <HeroSplineScene />
+        </Suspense>
+        {/* Overlay for readability */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse at center, rgba(8, 9, 18, 0.2) 0%, rgba(8, 9, 18, 0.7) 70%, rgba(8, 9, 18, 0.92) 100%)",
+              "radial-gradient(ellipse at center, rgba(8, 9, 18, 0.4) 0%, rgba(8, 9, 18, 0.75) 70%, rgba(8, 9, 18, 0.92) 100%)",
           }}
         />
       </div>
