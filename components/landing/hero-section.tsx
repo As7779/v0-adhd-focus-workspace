@@ -2,14 +2,6 @@
 
 import { motion } from "framer-motion"
 import { Sparkles, ArrowDown } from "lucide-react"
-import dynamic from "next/dynamic"
-
-const Spline = dynamic(() => import("@splinetool/react-spline"), {
-  ssr: false,
-  loading: () => (
-    <div className="absolute inset-0 bg-background" />
-  ),
-})
 
 interface HeroSectionProps {
   onLaunch: () => void
@@ -18,15 +10,17 @@ interface HeroSectionProps {
 export function HeroSection({ onLaunch }: HeroSectionProps) {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Spline 3D Background */}
+      {/* Animated gradient background */}
       <div className="absolute inset-0 z-0" aria-hidden="true">
-        <Spline scene="https://prod.spline.design/EuFyVyxz7M-BFadA/scene.splinecode" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(129,140,248,0.15),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(99,102,241,0.1),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30" />
         {/* Subtle overlay for readability */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse at center, rgba(8, 9, 18, 0.4) 0%, rgba(8, 9, 18, 0.75) 70%, rgba(8, 9, 18, 0.92) 100%)",
+              "radial-gradient(ellipse at center, rgba(8, 9, 18, 0.3) 0%, rgba(8, 9, 18, 0.7) 70%, rgba(8, 9, 18, 0.9) 100%)",
           }}
         />
       </div>
