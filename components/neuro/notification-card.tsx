@@ -12,6 +12,8 @@ export interface NotificationItem {
   preview: string
   time: string
   isRelevant?: boolean
+  actionTag: "ACTION NEEDED" | "INFO ONLY" | "FYI" | "URGENT"
+  summary: string
 }
 
 const iconMap: Record<string, LucideIcon> = {
@@ -28,6 +30,29 @@ const colorMap: Record<string, string> = {
   discord: "#a78bfa",
 }
 
+const tagStyles: Record<string, { bg: string; text: string; border: string }> = {
+  "ACTION NEEDED": {
+    bg: "rgba(251, 146, 60, 0.12)",
+    text: "#fb923c",
+    border: "rgba(251, 146, 60, 0.3)",
+  },
+  URGENT: {
+    bg: "rgba(248, 113, 113, 0.12)",
+    text: "#f87171",
+    border: "rgba(248, 113, 113, 0.3)",
+  },
+  "INFO ONLY": {
+    bg: "rgba(129, 140, 248, 0.12)",
+    text: "#818cf8",
+    border: "rgba(129, 140, 248, 0.3)",
+  },
+  FYI: {
+    bg: "rgba(74, 222, 128, 0.12)",
+    text: "#4ade80",
+    border: "rgba(74, 222, 128, 0.3)",
+  },
+}
+
 interface NotificationCardProps {
   notification: NotificationItem
 }
@@ -35,6 +60,7 @@ interface NotificationCardProps {
 export function NotificationCard({ notification }: NotificationCardProps) {
   const Icon = iconMap[notification.icon] || MessageSquare
   const color = colorMap[notification.icon] || "#818cf8"
+  const tag = tagStyles[notification.actionTag] || tagStyles["INFO ONLY"]
 
   return (
     <motion.div
@@ -55,23 +81,32 @@ export function NotificationCard({ notification }: NotificationCardProps) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              {notification.app}
-            </span>
-            <span className="text-xs text-muted-foreground/60">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                {notification.app}
+              </span>
+              <span
+                className="inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                style={{
+                  backgroundColor: tag.bg,
+                  color: tag.text,
+                  border: `1px solid ${tag.border}`,
+                }}
+              >
+                {notification.actionTag}
+              </span>
+            </div>
+            <span className="text-xs text-muted-foreground/60 shrink-0">
               {notification.time}
             </span>
           </div>
-          <p className="mt-1 text-sm font-medium text-foreground leading-snug truncate">
-            {notification.title}
-          </p>
-          <p className="mt-0.5 text-xs text-muted-foreground truncate">
-            {notification.preview}
+          <p className="mt-1.5 text-sm font-medium text-foreground/90 leading-relaxed">
+            {notification.summary}
           </p>
         </div>
       </div>
       {notification.isRelevant && (
-        <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-primary" />
+        <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-emerald-400" />
       )}
     </motion.div>
   )

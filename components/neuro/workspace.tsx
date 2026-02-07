@@ -2,12 +2,22 @@
 
 import { useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Search, Sparkles, ArrowLeft, Eye, EyeOff, Shield, Target } from "lucide-react"
+import {
+  Search,
+  Sparkles,
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  Shield,
+  Target,
+} from "lucide-react"
 import { TopBar } from "./top-bar"
 import { NotificationCard } from "./notification-card"
 import type { NotificationItem } from "./notification-card"
 import { PomodoroTimer } from "./pomodoro-timer"
+import { TaskAtomizer } from "./task-atomizer"
 import { SplineBackground } from "./spline-background"
+import { useSound } from "@/hooks/use-sound"
 
 const MOCK_NOTIFICATIONS: NotificationItem[] = [
   {
@@ -17,64 +27,87 @@ const MOCK_NOTIFICATIONS: NotificationItem[] = [
     title: "Lunch plans?",
     preview: "Hey, are we still on for sushi today at noon?",
     time: "2m ago",
+    actionTag: "FYI",
+    summary: "Team lunch at noon - sushi. Reply if joining.",
   },
   {
     id: "2",
     app: "Gmail",
     icon: "gmail",
     title: "HR Training Reminder",
-    preview: "Your compliance training is due by Friday...",
+    preview:
+      "Your compliance training is due by Friday. Please complete the 3 modules in the LMS portal before end of day.",
     time: "5m ago",
+    actionTag: "ACTION NEEDED",
+    summary: "Complete 3 compliance modules in LMS by Friday.",
   },
   {
     id: "3",
     app: "Jira",
     icon: "jira",
     title: "Critical Bug in Auth Controller",
-    preview: "AUTH-2847: JWT token validation failing on refresh...",
+    preview:
+      "AUTH-2847: JWT token validation failing on refresh. Users getting logged out after 5 minutes. Priority P0.",
     time: "8m ago",
     isRelevant: true,
+    actionTag: "URGENT",
+    summary: "JWT refresh broken - users logged out after 5 min. P0.",
   },
   {
     id: "4",
     app: "Discord",
     icon: "discord",
     title: "Movie night poll",
-    preview: "Vote for this weekend's movie: Interstellar vs...",
+    preview:
+      "Vote for this weekend's movie: Interstellar vs Arrival vs Dune Part 3. Poll closes Thursday!",
     time: "12m ago",
+    actionTag: "FYI",
+    summary: "Vote in weekend movie poll by Thursday.",
   },
   {
     id: "5",
     app: "Slack",
     icon: "slack",
     title: "Water cooler chat",
-    preview: "Did anyone see the game last night? What a...",
+    preview:
+      "Did anyone see the game last night? What a comeback in the 4th quarter!",
     time: "15m ago",
+    actionTag: "INFO ONLY",
+    summary: "Social chat about last night's game.",
   },
   {
     id: "6",
     app: "Gmail",
     icon: "gmail",
     title: "Newsletter: Weekly Digest",
-    preview: "Top 10 JavaScript frameworks you should know...",
+    preview:
+      "Top 10 JavaScript frameworks you should know in 2026. Plus: our take on the AI revolution in dev tools.",
     time: "20m ago",
+    actionTag: "INFO ONLY",
+    summary: "Weekly JS newsletter - frameworks and AI dev tools.",
   },
   {
     id: "7",
     app: "Jira",
     icon: "jira",
     title: "Fix API endpoint validation",
-    preview: "API-1293: Request body validation missing for /auth...",
+    preview:
+      "API-1293: Request body validation missing for /auth/reset-password. Allows empty payload.",
     time: "25m ago",
     isRelevant: true,
+    actionTag: "ACTION NEEDED",
+    summary: "Missing validation on /auth/reset-password endpoint.",
   },
   {
     id: "8",
     app: "Slack",
     icon: "slack",
     title: "Office supply order",
-    preview: "Please submit your requests for new monitors by...",
+    preview:
+      "Please submit your requests for new monitors by end of week. Budget approved for 27-inch displays.",
     time: "30m ago",
+    actionTag: "ACTION NEEDED",
+    summary: "Submit monitor requests by end of week.",
   },
 ]
 
@@ -82,6 +115,7 @@ export function Workspace() {
   const [focusTask, setFocusTask] = useState("")
   const [isZenMode, setIsZenMode] = useState(false)
   const [isQuietMode, setIsQuietMode] = useState(false)
+  const { playClick } = useSound()
 
   const filteredNotifications = useMemo(() => {
     if (!isZenMode || !focusTask.trim()) return MOCK_NOTIFICATIONS
@@ -91,15 +125,18 @@ export function Workspace() {
         (kw) =>
           kw.length > 2 &&
           (n.title.toLowerCase().includes(kw) ||
-            n.preview.toLowerCase().includes(kw))
-      )
+            n.preview.toLowerCase().includes(kw) ||
+            n.summary.toLowerCase().includes(kw)),
+      ),
     )
   }, [isZenMode, focusTask])
 
-  const suppressedCount = MOCK_NOTIFICATIONS.length - filteredNotifications.length
+  const suppressedCount =
+    MOCK_NOTIFICATIONS.length - filteredNotifications.length
 
   const handleEngage = () => {
     if (focusTask.trim()) {
+      playClick()
       setIsZenMode(true)
     }
   }
@@ -132,7 +169,7 @@ export function Workspace() {
                     What do you need to focus on?
                   </h1>
                   <p className="text-sm text-muted-foreground text-center">
-                    Enter your task below and we will silence everything else.
+                    {"Enter your task below and we'll silence everything else."}
                   </p>
                 </div>
 
@@ -143,11 +180,14 @@ export function Workspace() {
                     value={focusTask}
                     onChange={(e) => setFocusTask(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleEngage()}
-                    placeholder="Enter your focus task... (e.g. Fixing API bug)"
+                    placeholder='Enter your focus task... (e.g. "Fixing API bug")'
                     className="w-full rounded-xl border border-border/50 py-4 pl-12 pr-4 text-sm text-foreground placeholder:text-muted-foreground/60 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-all"
                     style={{ backgroundColor: "rgba(15, 16, 30, 0.7)" }}
                   />
                 </div>
+
+                {/* Task Atomizer - appears when there's a goal */}
+                {focusTask.trim() && <TaskAtomizer goal={focusTask} />}
 
                 <button
                   type="button"
@@ -168,7 +208,10 @@ export function Workspace() {
                     <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
                       Incoming Noise
                     </span>
-                    <span className="rounded-full px-2 py-0.5 text-xs font-mono text-muted-foreground border border-border/40" style={{ backgroundColor: "rgba(15, 16, 30, 0.5)" }}>
+                    <span
+                      className="rounded-full px-2 py-0.5 text-xs font-mono text-muted-foreground border border-border/40"
+                      style={{ backgroundColor: "rgba(15, 16, 30, 0.5)" }}
+                    >
                       {MOCK_NOTIFICATIONS.length}
                     </span>
                   </div>
@@ -202,7 +245,9 @@ export function Workspace() {
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.3, type: "spring" }}
                         className="flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-500/20"
-                        style={{ backgroundColor: "rgba(16, 185, 129, 0.1)" }}
+                        style={{
+                          backgroundColor: "rgba(16, 185, 129, 0.1)",
+                        }}
                       >
                         <Shield className="h-7 w-7 text-emerald-400" />
                       </motion.div>
@@ -210,7 +255,8 @@ export function Workspace() {
                         Focus Shield Active
                       </h2>
                       <p className="text-sm text-muted-foreground text-center max-w-sm">
-                        {suppressedCount} distractions suppressed. Only relevant items remain.
+                        {suppressedCount} distractions suppressed. Only relevant
+                        items remain.
                       </p>
                     </motion.div>
                   )}
@@ -219,7 +265,7 @@ export function Workspace() {
                 {/* Primary Action Card */}
                 <motion.div
                   layout
-                  className="w-full rounded-2xl border border-primary/20 p-6 backdrop-blur-xl animate-float"
+                  className="w-full rounded-2xl border border-primary/20 p-6 backdrop-blur-xl"
                   style={{ backgroundColor: "rgba(129, 140, 248, 0.06)" }}
                 >
                   <div className="flex items-center gap-3 mb-4">
@@ -245,15 +291,32 @@ export function Workspace() {
                     </div>
                   </div>
 
-                  {/* Relevant Cards */}
+                  {/* Task Atomizer in Zen Mode */}
                   <AnimatePresence>
                     {!isQuietMode && (
                       <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="flex flex-col gap-3 mt-4"
+                        className="mb-4"
                       >
+                        <TaskAtomizer goal={focusTask} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Relevant Cards */}
+                  <AnimatePresence>
+                    {!isQuietMode && filteredNotifications.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex flex-col gap-3 mt-4 pt-4 border-t border-border/20"
+                      >
+                        <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                          Relevant Notifications
+                        </span>
                         {filteredNotifications.map((n) => (
                           <NotificationCard key={n.id} notification={n} />
                         ))}
